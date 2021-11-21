@@ -9,12 +9,11 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import net.thucydides.core.annotations.Managed;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+
 import java.util.List;
 import java.util.Map;
 
@@ -44,8 +43,8 @@ public class HotelBookingStepdefs {
             String lastName = record.get("lastName");
             String price = record.get("totalAmount");
             String depositPaid = record.get("isdepositpaid");
-            String checkin = DateUtility.convertToDate(dateFormat,record.get("checkin"));
-            String checkout = DateUtility.convertToDate(dateFormat,record.get("checkout"));
+            String checkin = DateUtility.convertToDate(dateFormat, record.get("checkin"));
+            String checkout = DateUtility.convertToDate(dateFormat, record.get("checkout"));
             hotelBookingPage.firstName(firstName);
             hotelBookingPage.lastName(lastName);
             hotelBookingPage.totalPrice(price);
@@ -53,6 +52,7 @@ public class HotelBookingStepdefs {
             hotelBookingPage.checkinDate(checkin);
             hotelBookingPage.checkoutDate(checkout);
             hotelBookingPage.submitBooking();
+            hotelBookingPage.waitForTextToAppear(firstName);
         });
     }
 
@@ -63,34 +63,35 @@ public class HotelBookingStepdefs {
             String expectedLastName = record.get("lastName");
             String expectedPrice = record.get("totalAmount");
             String expectedDepositPaid = record.get("isdepositpaid");
-            String expectedCheckin = DateUtility.convertToDate(dateFormat,record.get("checkin"));
-            String expectedCheckout = DateUtility.convertToDate(dateFormat,record.get("checkout"));
-            hotelBookingPage.getBookingsList(expectedFirstName);
-            /*BookingDetails bookingDetailsActual = hotelBookingPage.getBookingDetailsWithFirstName(expectedFirstName);
+            String expectedCheckin = DateUtility.convertToDate(dateFormat, record.get("checkin"));
+            String expectedCheckout = DateUtility.convertToDate(dateFormat, record.get("checkout"));
+            BookingDetails bookingDetailsActual = hotelBookingPage.getBooking(firstName);
+
             assertThat("No bookings found with firstName : " + expectedFirstName + " and last name : " + expectedLastName, bookingDetailsActual, is(notNullValue()));
-            assertThat("price mismatch for lastName : " + expectedLastName, bookingDetailsActual.getPrice(), is(expectedPrice));
-            assertThat("deposit paid mismatch for lastName : " + expectedLastName, bookingDetailsActual.getIsDepositPaid(), is(expectedDepositPaid));
-            assertThat("checkin mismatch for lastName : " + expectedLastName, bookingDetailsActual.getCheckinDate(), is(expectedCheckin));
-            assertThat("checkout mismatch for lastName : " + expectedLastName, bookingDetailsActual.getCheckoutDate(), is(expectedCheckout));*/
+            assertThat("price mismatch for firstName : " + expectedLastName, bookingDetailsActual.getPrice(), is(expectedPrice));
+            assertThat("deposit paid mismatch for firstName : " + expectedFirstName, bookingDetailsActual.getIsDepositPaid(), is(expectedDepositPaid));
+            assertThat("checkin mismatch for firstName : " + expectedFirstName, bookingDetailsActual.getCheckinDate(), is(expectedCheckin));
+            assertThat("checkout mismatch for firstName : " + expectedFirstName, bookingDetailsActual.getCheckoutDate(), is(expectedCheckout));
         });
     }
 
     @When("I delete the booking")
     public void iDeleteTheBooking() {
-        WebElement bookingsActual = hotelBookingPage.getExistingBookingsWithFirstName(firstName);
-        assertThat("No bookings found with first name : " + firstName, bookingsActual, is(notNullValue()));
+        BookingDetails bookingDetailsActual = hotelBookingPage.getBooking(firstName);
+        assertThat("No bookings found with first name : " + firstName, bookingDetailsActual, is(notNullValue()));
         hotelBookingPage.deleteBookingForFirstName(firstName);
     }
 
     @Then("the booking should get deleted")
     public void theBookingShouldGetDeleted() {
-        WebElement bookingsActual = null;
-        try{
-            bookingsActual = hotelBookingPage.getExistingBookingsWithFirstName(firstName);
+        boolean bookingDetailsActual = true;
+        try {
+            hotelBookingPage.waitForTextToDisappear(firstName);
+            bookingDetailsActual = hotelBookingPage.isBookingExistWithFirstName(firstName);
+        } catch (Exception e) {
+            //log the exception if needed
         }
-        catch (TimeoutException e){
-        }
-        assertThat("Booking with first name : " + firstName + " is not deleted", bookingsActual, is(nullValue()));
+        assertThat("Booking with first name : " + firstName + " is not deleted", bookingDetailsActual, is(false));
     }
 
     @After("@saveBooking")

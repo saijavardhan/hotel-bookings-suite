@@ -7,10 +7,10 @@ import net.thucydides.core.annotations.At;
 import net.thucydides.core.annotations.WhenPageOpens;
 import net.thucydides.core.pages.PageObject;
 import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
+import java.util.Optional;
 
 @At("http://hotel-test.equalexperts.io")
 public class HotelBookingPage extends PageObject {
@@ -44,14 +44,14 @@ public class HotelBookingPage extends PageObject {
 
     //This is another way to get the exact row from a table in UI and get column values.
     //This way no need to iterate through the table and store the data
-    //
-    private String bookedRecordXpath = "//*[@id='bookings']//*[text()='{firstName}']//ancestor::div[@class='row']";
+    //refer methods getExistingBookingsWithFirstName, getBookingDetailsWithFirstName
+    /*private String bookedRecordXpath = "//*[@id='bookings']//*[text()='{firstName}']//ancestor::div[@class='row']";
     private By lastNameTable = By.xpath("./div[2]");
     private By priceNameTable = By.xpath("./div[3]");
     private By depositPaidTable = By.xpath("./div[4]");
     private By checkinTable = By.xpath("./div[5]");
     private By checkoutTable = By.xpath("./div[6]");
-    private By deleteBooking = By.xpath("./div[7]");
+    private By deleteBooking = By.xpath("./div[7]");*/
 
     @WhenPageOpens
     public void waitUntilCheckout() {
@@ -87,18 +87,39 @@ public class HotelBookingPage extends PageObject {
     }
 
 
-
-    public List<BookingDetails> getBookingsList(String firstName){
-        bookingTableRecords.stream().forEach(row->{
-            row.findElements(By.xpath("./div")).stream().forEach(column -> {
-                System.out.println("======"+column.getText());
-            });
-
-        });
-        return null;
+    public BookingDetails getBooking(String firstName) {
+        WebElement row = getBookingWithFirstName(firstName)
+                .orElseThrow(() -> new IllegalArgumentException("No booking found with first name : " + firstName));
+        BookingDetails booking = new BookingDetails();
+        String columnDiv = "./div";
+        List<WebElement> columns = row.findElements(By.xpath(columnDiv));
+        for (int i = 0; i <= 5; i++) {
+            switch (i) {
+                case 0:
+                    booking.setFirstName(columns.get(i).getText());
+                    break;
+                case 1:
+                    booking.setLastName(columns.get(i).getText());
+                    break;
+                case 2:
+                    booking.setPrice(columns.get(i).getText());
+                    break;
+                case 3:
+                    booking.setIsDepositPaid(columns.get(i).getText());
+                    break;
+                case 4:
+                    booking.setCheckinDate(columns.get(i).getText());
+                    break;
+                case 5:
+                    booking.setCheckoutDate(columns.get(i).getText());
+                    break;
+            }
+        }
+        return booking;
     }
 
-    public WebElement getExistingBookingsWithFirstName(String firstName) throws TimeoutException {
+    //just for reference
+    /*public WebElement getExistingBookingsWithFirstName(String firstName) throws TimeoutException {
         By byXpath = By.xpath(bookedRecordXpath.replace("{firstName}", firstName));
         waitForRenderedElements(byXpath);
         return getDriver().findElement(byXpath);
@@ -107,7 +128,6 @@ public class HotelBookingPage extends PageObject {
     public BookingDetails getBookingDetailsWithFirstName(String firstName) {
         WebElement bookingsUI = getExistingBookingsWithFirstName(firstName);
         BookingDetails booking = new BookingDetails();
-
         booking.setFirstName(firstName);
         booking.setLastName(bookingsUI.findElement(lastNameTable).getText());
         booking.setPrice(bookingsUI.findElement(priceNameTable).getText());
@@ -116,18 +136,24 @@ public class HotelBookingPage extends PageObject {
         booking.setCheckoutDate(bookingsUI.findElement(checkoutTable).getText());
 
         return booking;
+    }*/
+
+    private Optional<WebElement> getBookingWithFirstName(String firstName) {
+        return bookingTableRecords
+                .stream()
+                .filter(k -> k.findElement(By.xpath("./div[1]")).getText().equals(firstName))
+                .findFirst();
+    }
+
+    public boolean isBookingExistWithFirstName(String firstName) {
+        return getBookingWithFirstName(firstName)
+                .isPresent();
     }
 
     public void deleteBookingForFirstName(String firstName) {
-        WebElement bookingToDelete = null;
-        try {
-            bookingToDelete = getExistingBookingsWithFirstName(firstName);
-        } catch (TimeoutException e) {
-        }
-        if (bookingToDelete != null) {
-            bookingToDelete.findElement(deleteBooking).click();
-        }
-
+        WebElement bookingToDelete = getBookingWithFirstName(firstName)
+                .orElseThrow(() -> new IllegalArgumentException("No booking found with first name : " + firstName));
+        bookingToDelete.findElement(By.xpath("./div[7]")).click();
     }
 
 }
