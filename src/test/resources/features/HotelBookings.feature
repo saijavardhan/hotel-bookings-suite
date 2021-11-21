@@ -21,7 +21,25 @@ Feature: Hotel bookings
     When I delete the booking
     Then the booking should get deleted
 
-    @manual
-    Scenario: Booking test
-      When I tet it
-      Then I should see this
+  @manual
+  Scenario: checkout date should not be prior to checkin date
+    And I give checkin date as TODAY+1
+    And I give checkout date as TODAY
+    When I try to book the hotel
+    Then I should see an error message
+    And the booking is not made
+
+  @manual
+  Scenario: All the fields are mandatory to make a booking
+    When I try to book the hotel without specifying any one field
+    Then I should see an error specific to that field
+    And the booking is not made
+
+  @manual
+  Scenario: Price should accept only numeric values
+    And I pass price as "abc"
+    And I specify all the other fields with valid values
+    When I try to book the hotel
+    Then the price filed should display an error message
+    And the booking is not made
+
