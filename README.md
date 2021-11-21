@@ -16,7 +16,7 @@
         2) a) Run the below command to run the tests in chrome browser. By default chrome is configured
                 ## mvn clean verify serenity:aggregate
             b) If you want to run in firefox browser then use the below command
-                ## mvn clean verify serenity:aggregate -Dwebdriver.driver=firefox
+                ## mvn clean verify serenity:aggregate "-Dwebdriver.driver=firefox"
         3) you can check the report in below folder
            ## target/site/serenity/index.html    
            

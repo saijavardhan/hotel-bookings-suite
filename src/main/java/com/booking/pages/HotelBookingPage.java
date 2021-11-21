@@ -55,6 +55,7 @@ public class HotelBookingPage extends PageObject {
 
     @WhenPageOpens
     public void waitUntilCheckout() {
+        getDriver().manage().window().maximize();
         formContainer.waitUntilVisible();
     }
 

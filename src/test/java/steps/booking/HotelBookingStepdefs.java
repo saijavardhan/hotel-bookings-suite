@@ -96,6 +96,7 @@ public class HotelBookingStepdefs {
 
     @After("@saveBooking")
     public void deleteBooking() {
+        //ideally it's good to call API to delete the booking
         hotelBookingPage.deleteBookingForFirstName(firstName);
     }
 }
