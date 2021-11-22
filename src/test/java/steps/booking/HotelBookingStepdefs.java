@@ -1,7 +1,7 @@
 package steps.booking;
 
 import com.booking.pages.HotelBookingPage;
-import com.booking.utilities.BookingDetails;
+import com.booking.model.BookingDetails;
 import com.booking.utilities.DateUtility;
 import io.cucumber.java.After;
 import io.cucumber.java.en.And;

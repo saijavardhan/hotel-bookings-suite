@@ -1,6 +1,6 @@
 package com.booking.pages;
 
-import com.booking.utilities.BookingDetails;
+import com.booking.model.BookingDetails;
 import net.serenitybdd.core.annotations.findby.FindBy;
 import net.serenitybdd.core.pages.WebElementFacade;
 import net.thucydides.core.annotations.At;
@@ -15,32 +15,36 @@ import java.util.Optional;
 @At("http://hotel-test.equalexperts.io")
 public class HotelBookingPage extends PageObject {
 
-    @FindBy(id = "firstname")
-    WebElementFacade firstname;
+    @FindBy(css = "#firstname")
+    private WebElementFacade firstname;
 
-    @FindBy(id = "lastname")
-    WebElementFacade lastname;
+    @FindBy(css = "#lastname")
+    private WebElementFacade lastname;
 
-    @FindBy(id = "totalprice")
-    WebElementFacade totalprice;
+    @FindBy(css = "#totalprice")
+    private WebElementFacade totalprice;
 
-    @FindBy(id = "depositpaid")
-    WebElementFacade depositpaid;
+    @FindBy(css = "#depositpaid")
+    private WebElementFacade depositpaid;
 
-    @FindBy(id = "checkin")
-    WebElementFacade checkin;
+    @FindBy(css = "#checkin")
+    private WebElementFacade checkin;
 
-    @FindBy(id = "checkout")
-    WebElementFacade checkout;
+    @FindBy(css = "#checkout")
+    private WebElementFacade checkout;
 
-    @FindBy(xpath = "//input[contains(@value , 'Save')]")
-    WebElementFacade save;
+    @FindBy(css = "input[value*=Save]")
+    private WebElementFacade save;
 
-    @FindBy(xpath = "//*[@class='container']")
-    WebElementFacade formContainer;
+    @FindBy(css = ".container")
+    private WebElementFacade formContainer;
 
-    @FindBy(xpath = "//div[@id='bookings']/div[@class='row']")
-    List<WebElement> bookingTableRecords;
+    @FindBy(css = "div#bookings > div.row")
+    private List<WebElement> bookingTableRecords;
+
+    private By columnBy = By.cssSelector("div");
+
+    private By deleteBy = By.xpath("./div[7]");
 
     //This is another way to get the exact row from a table in UI and get column values.
     //This way no need to iterate through the table and store the data
@@ -92,8 +96,7 @@ public class HotelBookingPage extends PageObject {
         WebElement row = getBookingWithFirstName(firstName)
                 .orElseThrow(() -> new IllegalArgumentException("No booking found with first name : " + firstName));
         BookingDetails booking = new BookingDetails();
-        String columnDiv = "./div";
-        List<WebElement> columns = row.findElements(By.xpath(columnDiv));
+        List<WebElement> columns = row.findElements(columnBy);
         for (int i = 0; i <= 5; i++) {
             switch (i) {
                 case 0:
@@ -117,6 +120,17 @@ public class HotelBookingPage extends PageObject {
             }
         }
         return booking;
+    }
+
+    public boolean isBookingExistWithFirstName(String firstName) {
+        return getBookingWithFirstName(firstName)
+                .isPresent();
+    }
+
+    public void deleteBookingForFirstName(String firstName) {
+        WebElement bookingToDelete = getBookingWithFirstName(firstName)
+                .orElseThrow(() -> new IllegalArgumentException("No booking found with first name : " + firstName));
+        bookingToDelete.findElement(deleteBy).click();
     }
 
     //just for reference
@@ -144,17 +158,6 @@ public class HotelBookingPage extends PageObject {
                 .stream()
                 .filter(k -> k.findElement(By.xpath("./div[1]")).getText().equals(firstName))
                 .findFirst();
-    }
-
-    public boolean isBookingExistWithFirstName(String firstName) {
-        return getBookingWithFirstName(firstName)
-                .isPresent();
-    }
-
-    public void deleteBookingForFirstName(String firstName) {
-        WebElement bookingToDelete = getBookingWithFirstName(firstName)
-                .orElseThrow(() -> new IllegalArgumentException("No booking found with first name : " + firstName));
-        bookingToDelete.findElement(By.xpath("./div[7]")).click();
     }
 
 }
