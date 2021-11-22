@@ -44,7 +44,9 @@ public class HotelBookingPage extends PageObject {
 
     private By columnBy = By.cssSelector("div");
 
-    private By deleteBy = By.xpath("./div[7]");
+    private By deleteBy = By.cssSelector("div:nth-child(7)");
+
+    private By firstNameBy = By.cssSelector("div:nth-child(1)");
 
     //This is another way to get the exact row from a table in UI and get column values.
     //This way no need to iterate through the table and store the data
@@ -156,7 +158,7 @@ public class HotelBookingPage extends PageObject {
     private Optional<WebElement> getBookingWithFirstName(String firstName) {
         return bookingTableRecords
                 .stream()
-                .filter(k -> k.findElement(By.xpath("./div[1]")).getText().equals(firstName))
+                .filter(k -> k.findElement(firstNameBy).getText().equals(firstName))
                 .findFirst();
     }
 
