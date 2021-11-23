@@ -61,7 +61,7 @@ public class HotelBookingStepdefs {
         bookingDetails.forEach(record -> {
             String expectedFirstName = record.get("firstName");
             String expectedLastName = record.get("lastName");
-            String expectedPrice = record.get("totalAmount");
+            Double expectedPrice = Double.parseDouble(record.get("totalAmount"));
             String expectedDepositPaid = record.get("isdepositpaid");
             String expectedCheckin = DateUtility.convertToDate(dateFormat, record.get("checkin"));
             String expectedCheckout = DateUtility.convertToDate(dateFormat, record.get("checkout"));

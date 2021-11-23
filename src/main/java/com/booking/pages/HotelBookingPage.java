@@ -108,7 +108,7 @@ public class HotelBookingPage extends PageObject {
                     booking.setLastName(columns.get(i).getText());
                     break;
                 case 2:
-                    booking.setPrice(columns.get(i).getText());
+                    booking.setPrice(Double.parseDouble(columns.get(i).getText()));
                     break;
                 case 3:
                     booking.setIsDepositPaid(columns.get(i).getText());

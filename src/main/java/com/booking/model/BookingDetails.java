@@ -7,7 +7,7 @@ import lombok.Setter;
 public class BookingDetails {
     String firstName;
     String lastName;
-    String price;
+    Double price;
     String isDepositPaid;
     String checkinDate;
     String checkoutDate;
